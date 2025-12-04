@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SaaS Boilerplate{% endblock %}</title>
+
+    {% if settings.ENVIRONMENT == "development" %}
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="{{ vite_asset('main.js') }}"></script>
+    {% else %}
+    <link rel="stylesheet" href="{{ vite_asset('styles/index.css') }}">
+    <!-- Note: Vite manifest usually handles CSS imported in JS, but if we have separate CSS entry -->
+    <!-- Actually main.js imports index.css, so in prod it might be a separate file or bundled -->
+    <!-- We'll rely on manifest for main.js which should include css -->
+    <script type="module" src="{{ vite_asset('main.js') }}"></script>
+    {% endif %}
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+    {% block content %}{% endblock %}
+</body>
+
+</html>
