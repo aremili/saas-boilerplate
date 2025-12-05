@@ -1,0 +1,93 @@
+{#
+Component Macros
+
+Usage:
+{% from "components/macros.html" import alert, badge, button %}
+
+{{ alert("Operation successful!", type="success", dismissable=true) }}
+{{ badge("New", color="green") }}
+{{ button("Submit", type="primary", size="lg") }}
+#}
+
+{# Alert Macro - Dismissable notifications #}
+{% macro alert(message, type="info", dismissable=true, auto_dismiss=0) %}
+{% set colors = {
+"info": "bg-blue-50 text-blue-800 border-blue-200",
+"success": "bg-green-50 text-green-800 border-green-200",
+"warning": "bg-yellow-50 text-yellow-800 border-yellow-200",
+"error": "bg-red-50 text-red-800 border-red-200"
+} %}
+{% set icons = {
+"info": "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+"success": "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+"warning": "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34
+16c-.77 1.333.192 3 1.732 3z",
+"error": "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+} %}
+<div {% if dismissable %}data-controller="alert" {% endif %} {% if auto_dismiss> 0 %}data-alert-auto-dismiss-value="{{
+    auto_dismiss }}"{% endif %}
+    class="flex items-center gap-3 p-4 border rounded-lg {{ colors[type] }}"
+    role="alert"
+    >
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icons[type] }}" />
+    </svg>
+    <p class="flex-1 text-sm font-medium">{{ message }}</p>
+    {% if dismissable %}
+    <button type="button" data-action="click->alert#dismiss"
+        class="flex-shrink-0 p-1 rounded hover:bg-black hover:bg-opacity-10 transition-colors focus:outline-none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+    {% endif %}
+</div>
+{% endmacro %}
+
+
+{# Badge Macro - Small labels #}
+{% macro badge(text, color="gray", size="sm") %}
+{% set colors = {
+"gray": "bg-gray-100 text-gray-800",
+"red": "bg-red-100 text-red-800",
+"yellow": "bg-yellow-100 text-yellow-800",
+"green": "bg-green-100 text-green-800",
+"blue": "bg-blue-100 text-blue-800",
+"purple": "bg-purple-100 text-purple-800"
+} %}
+{% set sizes = {
+"sm": "px-2 py-0.5 text-xs",
+"md": "px-2.5 py-1 text-sm",
+"lg": "px-3 py-1.5 text-base"
+} %}
+<span class="inline-flex items-center font-medium rounded-full {{ colors[color] }} {{ sizes[size] }}">
+    {{ text }}
+</span>
+{% endmacro %}
+
+
+{# Button Macro - Styled buttons #}
+{% macro button(text, type="primary", size="md", href=none, disabled=false, icon=none) %}
+{% set types = {
+"primary": "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+"secondary": "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
+"danger": "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+"ghost": "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500"
+} %}
+{% set sizes = {
+"sm": "px-3 py-1.5 text-sm",
+"md": "px-4 py-2 text-sm",
+"lg": "px-5 py-2.5 text-base"
+} %}
+{% set tag = "a" if href else "button" %}
+<{{ tag }} {% if href %}href="{{ href }}" {% endif %} {% if not href %}type="button" {% endif %} {% if disabled
+    %}disabled{% endif %}
+    class="inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 {{ types[type] }} {{ sizes[size] }} {% if disabled %}opacity-50 cursor-not-allowed{% endif %}">
+    {% if icon %}
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ icon }}" />
+    </svg>
+    {% endif %}
+    {{ text }}
+</{{ tag }}>
+{% endmacro %}

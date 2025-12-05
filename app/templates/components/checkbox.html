@@ -1,0 +1,40 @@
+{#
+Checkbox Component
+
+Usage:
+{% with name="completed", label="Mark as complete", checked=false %}
+{% include "components/checkbox.html" %}
+{% endwith %}
+
+Variables:
+- name: form field name (required)
+- label: text label (optional)
+- checked: initial state (default: false)
+- id: custom id (optional, defaults to name)
+- disabled: disable the checkbox (default: false)
+#}
+<div data-controller="checkbox" data-checkbox-checked-value="{{ checked | default(false) | tojson }}"
+    class="inline-flex items-center gap-3 {% if disabled %}opacity-50 cursor-not-allowed{% else %}cursor-pointer{% endif %}"
+    {% if not disabled %}data-action="click->checkbox#toggle" {% endif %}>
+    {# Hidden input for form submission #}
+    <input type="hidden" name="{{ name }}" value="{{ 'true' if checked else 'false' }}" data-checkbox-target="input">
+
+    {# Visual checkbox #}
+    <div data-checkbox-target="box" class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all
+               {% if checked %}
+                   bg-blue-600 border-blue-600
+               {% else %}
+                   bg-white border-gray-300 hover:border-blue-400
+               {% endif %}">
+        {% if checked %}
+        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        </svg>
+        {% endif %}
+    </div>
+
+    {# Label #}
+    {% if label %}
+    <span class="text-sm text-gray-700 select-none">{{ label }}</span>
+    {% endif %}
+</div>

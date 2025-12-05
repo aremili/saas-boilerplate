@@ -1,0 +1,31 @@
+{#
+Dropdown Component
+
+Usage:
+{% with label="Options", items=[{"text": "Edit", "href": "#"}, {"text": "Delete", "href": "#"}] %}
+{% include "components/dropdown.html" %}
+{% endwith %}
+#}
+<div data-controller="dropdown" class="relative inline-block">
+    <button type="button" data-action="click->dropdown#toggle"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+        <span>{{ label | default("Menu") }}</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <div data-dropdown-target="menu"
+        class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+        <div class="py-1">
+            {% for item in items | default([]) %}
+            <a href="{{ item.href | default('#') }}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors" {%
+                if item.action %}data-action="{{ item.action }}" {% endif %}>
+                {{ item.text }}
+            </a>
+            {% endfor %}
+            {% block dropdown_items %}{% endblock %}
+        </div>
+    </div>
+</div>
