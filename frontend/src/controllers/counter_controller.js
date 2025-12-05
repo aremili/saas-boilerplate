@@ -9,9 +9,12 @@ import { Controller } from "@hotwired/stimulus"
  *      data-counter-step-value="{{ step }}">
  * 
  * Values can be passed dynamically from Jinja2 context!
+ * 
+ * To sync with a hidden input for form submission:
+ * <input type="hidden" data-counter-target="input" name="field_name">
  */
 export default class extends Controller {
-    static targets = ["display"]
+    static targets = ["display", "input"]
     static values = {
         count: { type: Number, default: 0 },
         step: { type: Number, default: 1 },
@@ -47,6 +50,10 @@ export default class extends Controller {
     render() {
         if (this.hasDisplayTarget) {
             this.displayTarget.textContent = this.countValue
+        }
+        // Sync with hidden input for form submission
+        if (this.hasInputTarget) {
+            this.inputTarget.value = this.countValue
         }
     }
 }

@@ -60,7 +60,7 @@ async def create_task(
     priority: int = Form(2),
     completed: str = Form("false"),  # Checkbox sends "true" or "false" as string
 ):
-    """Create a new task, return the new task row"""
+    """Create a new task, return the new task row + OOB alert"""
     task_id = str(uuid.uuid4())[:8]
     TASKS[task_id] = {
         "id": task_id,
@@ -70,12 +70,16 @@ async def create_task(
         "created_at": datetime.now(),
     }
     
-    # Return just the new task row + trigger alert
-    response = templates.TemplateResponse(
-        "partials/task_item.html",
-        {"request": request, "task": TASKS[task_id]}
+    # Return the new task row + OOB alert
+    task_html = templates.get_template("partials/task_item.html").render(
+        request=request, task=TASKS[task_id]
     )
-    # HTMX trigger to show success alert
+    alert_html = templates.get_template("partials/alert_oob.html").render(
+        message="Task created successfully!", alert_type="success"
+    )
+    
+    response = HTMLResponse(task_html + alert_html)
+    # Keep trigger for stats refresh
     response.headers["HX-Trigger"] = "taskCreated"
     return response
 
@@ -97,10 +101,14 @@ async def toggle_task(request: Request, task_id: str):
 
 @router.delete("/{task_id}", response_class=HTMLResponse)
 async def delete_task(request: Request, task_id: str):
-    """Delete a task, return empty (HTMX will remove element)"""
+    """Delete a task, return OOB alert (HTMX will remove original element)"""
     if task_id in TASKS:
         del TASKS[task_id]
-        response = HTMLResponse("")
+        # Return OOB alert only (main target becomes empty, removing the task item)
+        alert_html = templates.get_template("partials/alert_oob.html").render(
+            message="Task deleted", alert_type="info"
+        )
+        response = HTMLResponse(alert_html)
         response.headers["HX-Trigger"] = "taskDeleted"
         return response
     return HTMLResponse("Task not found", status_code=404)

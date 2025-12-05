@@ -5,6 +5,11 @@ Usage:
 {% with initial=5, step=1, min=0, max=100, label="Quantity" %}
 {% include "components/counter.html" %}
 {% endwith %}
+
+For form integration, add input_name to sync with hidden input:
+{% with initial=2, min=1, max=5, input_name="priority" %}
+{% include "components/counter.html" %}
+{% endwith %}
 #}
 <div data-controller="counter" data-counter-count-value="{{ initial | default(0) }}"
     data-counter-step-value="{{ step | default(1) }}" data-counter-min-value="{{ min | default('') }}"
@@ -33,6 +38,10 @@ Usage:
             </svg>
         </button>
     </div>
+
+    {% if input_name %}
+    <input type="hidden" data-counter-target="input" name="{{ input_name }}" value="{{ initial | default(0) }}">
+    {% endif %}
 
     {% if show_reset %}
     <button type="button" data-action="click->counter#reset"

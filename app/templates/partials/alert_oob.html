@@ -1,0 +1,14 @@
+{#
+Alert OOB Partial - For HTMX Out-of-Band swaps
+
+Usage in routes:
+Include this partial in responses with hx-swap-oob="beforeend:#alert-container"
+
+Example:
+{% include "partials/alert_oob.html" %}
+#}
+{% from "components/macros.html" import alert %}
+
+<div hx-swap-oob="beforeend:#alert-container">
+    {{ alert(message, type=alert_type, dismissable=true, auto_dismiss=3000) }}
+</div>
