@@ -67,22 +67,24 @@ async def create_task(
     priority: int = Form(2),
     completed: str = Form("false"),
 ):
-    """Create a new task, return the new task row + OOB alert"""
+    """Create a new task, return the new task row + OOB swaps"""
     task = await repo.create(
         title=title,
         completed=completed.lower() == "true",
         priority=priority,
     )
     
-    # Return the new task row + OOB alert
+    # Return the new task row + OOB alert + OOB empty state removal
     task_html = templates.get_template("partials/task_item.html").render(
         request=request, task=task
     )
     alert_html = templates.get_template("partials/alert_oob.html").render(
         message="Task created successfully!", alert_type="success"
     )
+    # OOB swap to remove empty state (deletes element by swapping with nothing)
+    empty_state_removal = '<div id="empty-state" hx-swap-oob="delete"></div>'
     
-    response = HTMLResponse(task_html + alert_html)
+    response = HTMLResponse(task_html + alert_html + empty_state_removal)
     response.headers["HX-Trigger"] = "taskCreated"
     return response
 
@@ -107,10 +109,23 @@ async def delete_task(request: Request, task_id: int, repo: TaskRepoDep):
     task = await repo.get(task_id)
     if task:
         await repo.delete(task)
+        
+        # Build response parts
         alert_html = templates.get_template("partials/alert_oob.html").render(
             message="Task deleted", alert_type="info"
         )
-        response = HTMLResponse(alert_html)
+        
+        # Check if this was the last task - if so, show empty state
+        total, _ = await repo.count_stats()
+        empty_state_html = ""
+        if total == 0:
+            empty_state_html = templates.get_template("partials/task_list.html").render(
+                request=request, tasks=[]
+            )
+            # Wrap in OOB swap to insert into task list
+            empty_state_html = f'<div id="task-list" hx-swap-oob="innerHTML">{empty_state_html}</div>'
+        
+        response = HTMLResponse(alert_html + empty_state_html)
         response.headers["HX-Trigger"] = "taskDeleted"
         return response
     return HTMLResponse("Task not found", status_code=404)
