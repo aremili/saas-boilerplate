@@ -1,0 +1,32 @@
+{# Task Stats Partial - Live-updated via HTMX triggers #}
+<div class="mb-6 p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+    <div class="flex items-center gap-6">
+        <div>
+            <p class="text-3xl font-bold text-gray-900">{{ total }}</p>
+            <p class="text-sm text-gray-500">Total Tasks</p>
+        </div>
+        <div class="w-px h-10 bg-gray-200"></div>
+        <div>
+            <p class="text-3xl font-bold text-green-600">{{ completed }}</p>
+            <p class="text-sm text-gray-500">Completed</p>
+        </div>
+        <div class="w-px h-10 bg-gray-200"></div>
+        <div>
+            <p class="text-3xl font-bold text-blue-600">{{ total - completed }}</p>
+            <p class="text-sm text-gray-500">Remaining</p>
+        </div>
+    </div>
+
+    {# Progress Bar #}
+    {% set progress = (completed / total * 100) if total > 0 else 0 %}
+    <div class="w-32">
+        <div class="flex items-center justify-between text-sm mb-1">
+            <span class="text-gray-500">Progress</span>
+            <span class="font-medium text-gray-900">{{ progress | int }}%</span>
+        </div>
+        <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-500"
+                style="width: {{ progress }}%"></div>
+        </div>
+    </div>
+</div>

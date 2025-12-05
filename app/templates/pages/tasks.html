@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% from "components/macros.html" import alert, badge, button %}
+
+{% block title %}Task Manager - HTMX + Stimulus Demo{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div class="container mx-auto p-8 max-w-3xl">
+
+        {# Header #}
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Task Manager</h1>
+            <p class="text-gray-600">
+                Demo combining <strong>HTMX</strong> (server requests) +
+                <strong>Stimulus</strong> (UI interactions) + <strong>FastAPI</strong>
+            </p>
+        </header>
+
+        {# Alert Container - Stimulus will manage alerts here #}
+        <div id="alert-container" class="mb-6 space-y-3">
+            {# Alerts will be inserted here via HTMX triggers + JavaScript #}
+        </div>
+
+        {# Stats Card - Updates via HTMX after task changes #}
+        <div id="task-stats" hx-get="/tasks/stats"
+            hx-trigger="taskCreated from:body, taskDeleted from:body, taskToggled from:body" hx-swap="innerHTML">
+            {% include "partials/task_stats.html" %}
+        </div>
+
+        {# Add Task Form - HTMX POST #}
+        <div data-controller="modal" class="mb-6">
+            <button data-action="click->modal#open" class="w-full py-3 px-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 
+                       flex items-center justify-center gap-2 font-medium transition-all
+                       shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Task
+            </button>
+
+            {# Modal with Form #}
+            <div data-modal-target="dialog" data-action="click->modal#closeOnBackdrop"
+                class="hidden fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex min-h-screen items-center justify-center p-4">
+                    <div class="fixed inset-0 bg-black/50"></div>
+
+                    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                        <div class="flex items-center justify-between p-5 border-b">
+                            <h3 class="text-lg font-semibold">Add New Task</h3>
+                            <button data-action="click->modal#close" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {# HTMX Form - Posts to server, appends response to task list #}
+                        <form hx-post="/tasks/" hx-target="#task-list" hx-swap="afterbegin"
+                            hx-on::after-request="this.reset(); document.querySelector('[data-action*=modal\\#close]').click();"
+                            class="p-5 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                                <input type="text" name="title" required placeholder="What needs to be done?"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                                {# Counter component for priority selection #}
+                                {% with initial=2, min=1, max=5, label="", show_reset=false %}
+                                <div class="flex items-center gap-4">
+                                    {% include "components/counter.html" %}
+                                    <input type="hidden" name="priority" id="priority-input" value="2">
+                                    <span class="text-sm text-gray-500">(1 = highest, 5 = lowest)</span>
+                                </div>
+                                {% endwith %}
+                            </div>
+
+                            {# Checkbox component for marking task as already complete #}
+                            <div class="pt-2 border-t border-gray-100">
+                                {% with name="completed", label="Mark as already completed", checked=false %}
+                                {% include "components/checkbox.html" %}
+                                {% endwith %}
+                            </div>
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button type="button" data-action="click->modal#close"
+                                    class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                                    Cancel
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    Add Task
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Task List - Main content area #}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-900">Tasks</h2>
+                <button hx-get="/tasks/list" hx-target="#task-list" hx-swap="innerHTML"
+                    class="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <div id="task-list" class="divide-y divide-gray-100">
+                {% include "partials/task_list.html" %}
+            </div>
+        </div>
+
+        {# Info Footer #}
+        <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>
+                <strong>HTMX</strong> handles form submissions & list updates •
+                <strong>Stimulus</strong> controls modal & counters •
+                <strong>FastAPI</strong> serves HTML partials
+            </p>
+        </footer>
+    </div>
+</div>
+
+<script>
+    // Listen for HTMX triggers and show alerts
+    document.body.addEventListener('taskCreated', function () {
+        showAlert('Task created successfully!', 'success');
+    });
+
+    document.body.addEventListener('taskDeleted', function () {
+        showAlert('Task deleted', 'info');
+    });
+
+    function showAlert(message, type) {
+        const container = document.getElementById('alert-container');
+        const colors = {
+            success: 'bg-green-50 text-green-800 border-green-200',
+            info: 'bg-blue-50 text-blue-800 border-blue-200',
+            error: 'bg-red-50 text-red-800 border-red-200'
+        };
+
+        const alert = document.createElement('div');
+        alert.className = `flex items-center gap-3 p-4 border rounded-lg ${colors[type]} transition-all`;
+        alert.setAttribute('data-controller', 'alert');
+        alert.setAttribute('data-alert-auto-dismiss-value', '3000');
+        alert.innerHTML = `
+            <p class="flex-1 text-sm font-medium">${message}</p>
+            <button data-action="click->alert#dismiss" class="p-1 rounded hover:bg-black hover:bg-opacity-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        `;
+        container.appendChild(alert);
+
+        // Trigger Stimulus to connect
+        window.Stimulus.getControllerForElementAndIdentifier(alert, 'alert');
+    }
+
+    // Sync counter value to hidden input for form submission
+    document.addEventListener('click', function (e) {
+        const counterDisplay = document.querySelector('[data-counter-target="display"]');
+        const priorityInput = document.getElementById('priority-input');
+        if (counterDisplay && priorityInput) {
+            priorityInput.value = counterDisplay.textContent;
+        }
+    });
+</script>
+{% endblock %}
