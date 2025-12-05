@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
-from app.models.base import Base
+from app.common.models import Base
 
 # Echo SQL only in debug mode (12-factor: environment-based config)
 engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
