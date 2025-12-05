@@ -6,19 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SaaS Boilerplate{% endblock %}</title>
 
-    {% if settings.ENVIRONMENT == "development" %}
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <script type="module" src="{{ vite_asset('main.js') }}"></script>
-    {% else %}
-    <link rel="stylesheet" href="{{ vite_asset('styles/index.css') }}">
-    <!-- Note: Vite manifest usually handles CSS imported in JS, but if we have separate CSS entry -->
-    <!-- Actually main.js imports index.css, so in prod it might be a separate file or bundled -->
-    <!-- We'll rely on manifest for main.js which should include css -->
-    <script type="module" src="{{ vite_asset('main.js') }}"></script>
-    {% endif %}
+    <!-- Shoelace CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.19.1/cdn/themes/light.css" />
+
+    <!-- Custom App Styles -->
+    <link rel="stylesheet" href="/static/css/main.css">
+
+    <!-- Shoelace JS (autoloader for Web Components) -->
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.19.1/cdn/shoelace-autoloader.js"></script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-900">
+<body>
     {% block content %}{% endblock %}
 </body>
 

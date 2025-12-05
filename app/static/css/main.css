@@ -1,0 +1,297 @@
+/*
+ * Main CSS - Custom styles extending Shoelace theme
+ * Shoelace provides component styles, this file adds app-specific utilities
+ */
+
+/* ============================================
+   CSS Custom Properties (extend Shoelace)
+   ============================================ */
+:root {
+    /* App colors */
+    --app-bg: #f8fafc;
+    --app-bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    --app-text: #1e293b;
+    --app-text-muted: #64748b;
+    --app-border: #e2e8f0;
+
+    /* Spacing */
+    --app-container-max: 48rem;
+    --app-spacing-xs: 0.5rem;
+    --app-spacing-sm: 0.75rem;
+    --app-spacing-md: 1rem;
+    --app-spacing-lg: 1.5rem;
+    --app-spacing-xl: 2rem;
+}
+
+/* Dark mode support */
+:root.sl-theme-dark {
+    --app-bg: #0f172a;
+    --app-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --app-text: #f1f5f9;
+    --app-text-muted: #94a3b8;
+    --app-border: #334155;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--app-bg-gradient);
+    color: var(--app-text);
+    font-family: var(--sl-font-sans);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ============================================
+   Layout Utilities
+   ============================================ */
+.container {
+    width: 100%;
+    max-width: var(--app-container-max);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--app-spacing-xl);
+    padding-right: var(--app-spacing-xl);
+}
+
+.min-h-screen {
+    min-height: 100vh;
+}
+
+/* Flexbox */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: var(--app-spacing-xs);
+}
+
+.gap-3 {
+    gap: var(--app-spacing-sm);
+}
+
+.gap-4 {
+    gap: var(--app-spacing-md);
+}
+
+/* Spacing */
+.p-4 {
+    padding: var(--app-spacing-md);
+}
+
+.p-5 {
+    padding: var(--app-spacing-lg);
+}
+
+.p-8 {
+    padding: var(--app-spacing-xl);
+}
+
+.py-4 {
+    padding-top: var(--app-spacing-md);
+    padding-bottom: var(--app-spacing-md);
+}
+
+.px-5 {
+    padding-left: var(--app-spacing-lg);
+    padding-right: var(--app-spacing-lg);
+}
+
+.mb-2 {
+    margin-bottom: var(--app-spacing-xs);
+}
+
+.mb-4 {
+    margin-bottom: var(--app-spacing-md);
+}
+
+.mb-6 {
+    margin-bottom: var(--app-spacing-lg);
+}
+
+.mb-8 {
+    margin-bottom: var(--app-spacing-xl);
+}
+
+.mt-8 {
+    margin-top: var(--app-spacing-xl);
+}
+
+/* Stack spacing (vertical rhythm) */
+.space-y-3>*+* {
+    margin-top: var(--app-spacing-sm);
+}
+
+.space-y-4>*+* {
+    margin-top: var(--app-spacing-md);
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+h1 {
+    font-size: 1.875rem;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+h3 {
+    font-size: 1.125rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.font-medium {
+    font-weight: 500;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--app-text-muted);
+}
+
+.line-through {
+    text-decoration: line-through;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================
+   Card Component
+   ============================================ */
+.card {
+    background: white;
+    border-radius: var(--sl-border-radius-large);
+    box-shadow: var(--sl-shadow-small);
+    border: 1px solid var(--app-border);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: var(--app-spacing-md) var(--app-spacing-lg);
+    border-bottom: 1px solid var(--app-border);
+}
+
+.card-body {
+    padding: var(--app-spacing-lg);
+}
+
+/* ============================================
+   Task-specific Styles
+   ============================================ */
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: var(--app-spacing-md);
+    padding: var(--app-spacing-md) var(--app-spacing-lg);
+    transition: background-color 0.15s ease;
+}
+
+.task-item:hover {
+    background-color: var(--sl-color-neutral-50);
+}
+
+.task-item .delete-btn {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.task-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.task-list>*+* {
+    border-top: 1px solid var(--app-border);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 640px) {
+    .container {
+        padding-left: var(--app-spacing-md);
+        padding-right: var(--app-spacing-md);
+    }
+}
