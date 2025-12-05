@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% from "components/macros.html" import alert, badge, button %}
+{% from "components/macros.html" import alert, badge, button, number_input, checkbox %}
 
 {% block content %}
-<div class="container mx-auto p-8 max-w-4xl">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        Stimulus + Jinja2 Components Demo
+<div class="container p-8">
+    <h1 class="mb-2">
+        Shoelace + HTMX Components Demo
     </h1>
-    <p class="text-gray-600 mb-8">
-        Examples of combining Stimulus controllers with Jinja2 template components.
+    <p class="text-muted mb-8">
+        Examples of Shoelace Web Components with HTMX for server interactions.
     </p>
 
     {# ===== ALERTS SECTION ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
             Alerts
-            {{ badge("Macro", color="purple") }}
+            {{ badge("sl-alert", variant="primary") }}
         </h2>
         <div class="space-y-3">
             {{ alert("This is an info alert — click the X to dismiss!", type="info") }}
@@ -24,92 +24,138 @@
         </div>
     </section>
 
-    {# ===== COUNTER SECTION ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            Counter
-            {{ badge("Values", color="blue") }}
+    {# ===== INPUT SECTION ===== #}
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
+            Inputs
+            {{ badge("sl-input", variant="primary") }}
         </h2>
-        <p class="text-sm text-gray-500 mb-4">
-            Demonstrates passing values from Jinja2 to Stimulus via <code
-                class="bg-gray-100 px-1 rounded">data-*-value</code> attributes.
-        </p>
-        <div class="flex flex-wrap gap-6 items-center">
-            {% with initial=5, min=0, max=10, label="Quantity (0-10)", show_reset=true %}
-            {% include "components/counter.html" %}
-            {% endwith %}
-
-            {% with initial=100, step=10, label="Price" %}
-            {% include "components/counter.html" %}
-            {% endwith %}
+        <div class="space-y-4" style="max-width: 24rem;">
+            <sl-input label="Name" placeholder="Enter your name"></sl-input>
+            <sl-input type="email" label="Email" placeholder="you@example.com"></sl-input>
+            <sl-input type="password" label="Password" password-toggle></sl-input>
+            {{ number_input("quantity", label="Quantity", min=0, max=100, value=5) }}
         </div>
     </section>
 
     {# ===== DROPDOWN SECTION ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
             Dropdown
-            {{ badge("Include", color="green") }}
+            {{ badge("sl-dropdown", variant="primary") }}
         </h2>
-        <p class="text-sm text-gray-500 mb-4">Click outside or press Escape to close.</p>
+        <p class="text-sm text-muted mb-4">Click outside or press Escape to close.</p>
         <div class="flex gap-4">
-            {% with label="Actions", items=[
-            {"text": "Edit", "href": "#edit"},
-            {"text": "Duplicate", "href": "#duplicate"},
-            {"text": "Archive", "href": "#archive"},
-            {"text": "Delete", "href": "#delete"}
-            ] %}
-            {% include "components/dropdown.html" %}
-            {% endwith %}
+            <sl-dropdown>
+                <sl-button slot="trigger" caret>Actions</sl-button>
+                <sl-menu>
+                    <sl-menu-item>Edit</sl-menu-item>
+                    <sl-menu-item>Duplicate</sl-menu-item>
+                    <sl-menu-item>Archive</sl-menu-item>
+                    <sl-divider></sl-divider>
+                    <sl-menu-item type="checkbox">Favorite</sl-menu-item>
+                    <sl-divider></sl-divider>
+                    <sl-menu-item>
+                        <sl-icon slot="prefix" name="trash"></sl-icon>
+                        Delete
+                    </sl-menu-item>
+                </sl-menu>
+            </sl-dropdown>
 
-            {% with label="Account", items=[
-            {"text": "Profile", "href": "#profile"},
-            {"text": "Settings", "href": "#settings"},
-            {"text": "Logout", "href": "#logout"}
-            ] %}
-            {% include "components/dropdown.html" %}
-            {% endwith %}
+            <sl-dropdown>
+                <sl-button slot="trigger" caret variant="neutral">Account</sl-button>
+                <sl-menu>
+                    <sl-menu-item>
+                        <sl-icon slot="prefix" name="person"></sl-icon>
+                        Profile
+                    </sl-menu-item>
+                    <sl-menu-item>
+                        <sl-icon slot="prefix" name="gear"></sl-icon>
+                        Settings
+                    </sl-menu-item>
+                    <sl-divider></sl-divider>
+                    <sl-menu-item>
+                        <sl-icon slot="prefix" name="box-arrow-right"></sl-icon>
+                        Logout
+                    </sl-menu-item>
+                </sl-menu>
+            </sl-dropdown>
         </div>
     </section>
 
-    {# ===== MODAL SECTION ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            Modal
-            {{ badge("Include", color="green") }}
+    {# ===== DIALOG SECTION ===== #}
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
+            Dialog (Modal)
+            {{ badge("sl-dialog", variant="primary") }}
         </h2>
-        <p class="text-sm text-gray-500 mb-4">Supports Escape key and backdrop click to close.</p>
-        {% with title="Confirm Delete", trigger_text="Open Modal", content="Are you sure you want to delete this item?
-        This action cannot be undone." %}
-        {% include "components/modal.html" %}
-        {% endwith %}
+        <p class="text-sm text-muted mb-4">Supports Escape key and backdrop click to close. Focus-trapped for a11y.</p>
+
+        <sl-button onclick="document.getElementById('demo-dialog').show()">
+            Open Dialog
+        </sl-button>
+
+        <sl-dialog id="demo-dialog" label="Confirm Delete">
+            <p style="margin: 0;">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div slot="footer" class="flex gap-3 justify-end">
+                <sl-button variant="neutral" onclick="document.getElementById('demo-dialog').hide()">Cancel</sl-button>
+                <sl-button variant="danger" onclick="document.getElementById('demo-dialog').hide()">Delete</sl-button>
+            </div>
+        </sl-dialog>
     </section>
 
     {# ===== BUTTONS SECTION ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
             Buttons
-            {{ badge("Macro", color="purple") }}
+            {{ badge("sl-button", variant="primary") }}
         </h2>
-        <div class="flex flex-wrap gap-3">
-            {{ button("Primary", type="primary") }}
-            {{ button("Secondary", type="secondary") }}
-            {{ button("Danger", type="danger") }}
-            {{ button("Ghost", type="ghost") }}
-            {{ button("Disabled", type="primary", disabled=true) }}
-            {{ button("With Icon", type="primary", icon="M12 4v16m8-8H4") }}
+        <div class="flex gap-3" style="flex-wrap: wrap;">
+            {{ button("Primary", variant="primary") }}
+            {{ button("Neutral", variant="neutral") }}
+            {{ button("Danger", variant="danger") }}
+            {{ button("Text", variant="text") }}
+            {{ button("Disabled", variant="primary", disabled=true) }}
+            {{ button("With Icon", variant="primary", icon="plus-lg") }}
         </div>
     </section>
 
-    {# ===== HELLO CONTROLLER (original) ===== #}
-    <section class="mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            Hello Controller
-            {{ badge("Original", color="gray") }}
+    {# ===== CHECKBOX & SWITCH SECTION ===== #}
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
+            Checkboxes & Switches
+            {{ badge("sl-checkbox", variant="primary") }}
         </h2>
-        <div data-controller="hello" class="p-4 border rounded-lg bg-gray-50">
-            Loading Stimulus...
+        <div class="space-y-3">
+            {{ checkbox("terms", label="I agree to the terms and conditions") }}
+            {{ checkbox("newsletter", label="Subscribe to newsletter", checked=true) }}
+            <sl-switch>Enable notifications</sl-switch>
+            <sl-switch checked>Dark mode</sl-switch>
         </div>
+    </section>
+
+    {# ===== PROGRESS SECTION ===== #}
+    <section class="mb-8">
+        <h2 class="mb-4 flex items-center gap-2">
+            Progress
+            {{ badge("sl-progress-bar", variant="primary") }}
+        </h2>
+        <div class="space-y-4" style="max-width: 24rem;">
+            <sl-progress-bar value="25"></sl-progress-bar>
+            <sl-progress-bar value="50"></sl-progress-bar>
+            <sl-progress-bar value="75"></sl-progress-bar>
+            <sl-progress-bar indeterminate></sl-progress-bar>
+        </div>
+    </section>
+
+    {# ===== LINK TO TASK MANAGER ===== #}
+    <section class="mb-8">
+        <h2 class="mb-4">Try the Task Manager</h2>
+        <p class="text-muted mb-4">See these components in action with HTMX server interactions.</p>
+        <sl-button variant="primary" href="/tasks/">
+            <sl-icon slot="prefix" name="check2-square"></sl-icon>
+            Go to Task Manager
+        </sl-button>
     </section>
 </div>
 {% endblock %}
