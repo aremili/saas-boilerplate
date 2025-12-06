@@ -8,6 +8,7 @@ from app.core.logging import setup_logging, get_logger
 from app.core.exceptions import register_exception_handlers
 from app.routers.web import home
 from app.modules.task import router as task_router
+from app.common.auth import router as auth_router
 
 # Initialize logging
 setup_logging()
@@ -37,6 +38,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Include routers
 app.include_router(home.router)
 app.include_router(task_router)
+app.include_router(auth_router)
 
 
 @app.get("/health")
