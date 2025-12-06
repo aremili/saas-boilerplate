@@ -8,12 +8,8 @@ default:
 # --- Development ---
 
 # Run the development server with auto-reload
-dev:
+runserver:
     uv run uvicorn app.main:app --reload --port 8000
-
-# Run the development server (accessible from network)
-dev-public:
-    uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # --- Database & Migrations ---
 
@@ -96,7 +92,7 @@ prod:
 # --- Utilities ---
 
 # Open SQLite database shell
-db-shell:
+sqlite-shell:
     sqlite3 app.db
 
 # Clean up Python cache files

@@ -16,7 +16,9 @@ from alembic import context
 from app.core.config import settings
 
 # Import all models to ensure they're registered with Base.metadata
-from app.models import Base, Task  # noqa: F401
+from app.common.models import Base  # noqa: F401
+from app.modules.task.models import Task  # noqa: F401
+from app.common.auth.models import User, RefreshToken  # noqa: F401
 
 # Alembic Config object
 config = context.config
