@@ -1,7 +1,7 @@
 {# Task Stats Partial - Live-updated via HTMX triggers #}
 {% set progress = (completed / total * 100) if total > 0 else 0 %}
 
-<sl-card class="mb-6">
+<sl-card class="mb-6" style="width: 100%;">
     <div class="flex items-center justify-between gap-4" style="flex-wrap: wrap;">
         <div class="flex items-center gap-4">
             <div style="text-align: center;">
