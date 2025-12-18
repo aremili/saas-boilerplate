@@ -83,7 +83,7 @@ def require_role(allowed_roles: list[str]) -> Callable:
         allowed_roles: List of role names that are allowed access
         
     Returns:
-        Dependency function that checks user role
+        Dependency function that checks user roles
         
     Usage:
         @router.get("/admin-only")
@@ -93,9 +93,12 @@ def require_role(allowed_roles: list[str]) -> Callable:
     async def role_checker(
         current_user: Annotated[User, Depends(get_current_active_user)]
     ) -> User:
-        if current_user.role not in allowed_roles:
+        if current_user.is_superuser:
+            return current_user
+        if not any(current_user.has_role(role) for role in allowed_roles):
+            user_roles = [r.name for r in current_user.roles]
             logger.warning(
-                f"User {current_user.id} with role '{current_user.role}' "
+                f"User {current_user.id} with roles {user_roles} "
                 f"attempted to access endpoint requiring {allowed_roles}"
             )
             raise HTTPException(
@@ -105,6 +108,38 @@ def require_role(allowed_roles: list[str]) -> Callable:
         return current_user
     
     return role_checker
+
+
+def require_permission(permission: str) -> Callable:
+    """
+    Factory for creating permission-based access dependencies.
+    
+    Args:
+        permission: Permission codename required (e.g., "tasks:write")
+        
+    Returns:
+        Dependency function that checks user permission
+        
+    Usage:
+        @router.post("/tasks")
+        async def create_task(user: User = Depends(require_permission("tasks:write"))):
+            ...
+    """
+    async def permission_checker(
+        current_user: Annotated[User, Depends(get_current_active_user)]
+    ) -> User:
+        if not current_user.has_permission(permission):
+            logger.warning(
+                f"User {current_user.id} attempted to access endpoint "
+                f"requiring permission '{permission}'"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Permission required: {permission}"
+            )
+        return current_user
+    
+    return permission_checker
 
 
 async def get_current_superuser(

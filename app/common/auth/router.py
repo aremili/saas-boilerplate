@@ -104,10 +104,11 @@ async def login(
             detail="User account is inactive"
         )
     
-    # Create tokens
+    # Create tokens with roles and permissions
     token_data = {
         "sub": str(user.id),
-        "role": user.role,
+        "roles": [r.name for r in user.roles],
+        "permissions": list(user.get_all_permissions()),
         "tenant_id": user.tenant_id
     }
     
@@ -168,10 +169,11 @@ async def refresh_token(
     # Revoke old refresh token (token rotation)
     await token_repo.revoke_token(token_data.refresh_token)
     
-    # Create new tokens
+    # Create new tokens with roles and permissions
     new_token_data = {
         "sub": str(user.id),
-        "role": user.role,
+        "roles": [r.name for r in user.roles],
+        "permissions": list(user.get_all_permissions()),
         "tenant_id": user.tenant_id
     }
     

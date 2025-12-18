@@ -23,13 +23,36 @@ class TokenRefresh(BaseModel):
 
 
 # Response Schemas
+class PermissionResponse(BaseModel):
+    """Schema for permission data."""
+    id: int
+    codename: str
+    description: Optional[str] = None
+    
+    model_config = {"from_attributes": True}
+
+
+class RoleResponse(BaseModel):
+    """Schema for role data."""
+    id: int
+    name: str
+    description: Optional[str] = None
+    
+    model_config = {"from_attributes": True}
+
+
+class RoleWithPermissionsResponse(RoleResponse):
+    """Schema for role with permissions."""
+    permissions: list[PermissionResponse] = []
+
+
 class UserResponse(BaseModel):
     """Schema for user data in responses (excludes sensitive data)."""
     id: int
     email: str
     is_active: bool
     is_superuser: bool
-    role: str
+    roles: list[RoleResponse] = []
     tenant_id: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -49,10 +72,12 @@ class TokenPayload(BaseModel):
     sub: str  # User ID as string
     exp: datetime
     type: str  # "access" or "refresh"
-    role: Optional[str] = None
+    roles: list[str] = []
+    permissions: list[str] = []
     tenant_id: Optional[int] = None
 
 
 class MessageResponse(BaseModel):
     """Schema for simple message responses."""
     message: str
+
