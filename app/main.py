@@ -3,12 +3,19 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
-from app.core.database import init_db
+from app.core.database import init_db, AsyncSessionLocal
 from app.core.logging import setup_logging, get_logger
 from app.core.exceptions import register_exception_handlers
 from app.routers.web import home
 from app.modules.task import router as task_router
 from app.common.auth import router as auth_router
+
+# Import permissions and roles to register them
+import app.common.auth.permissions  # noqa: F401
+import app.common.auth.default_roles  # noqa: F401
+import app.modules.task.permissions  # noqa: F401
+
+from app.common.auth.rbac_sync import sync_rbac
 
 # Initialize logging
 setup_logging()
@@ -22,12 +29,18 @@ async def lifespan(app: FastAPI):
     # Startup: Initialize database
     await init_db()
     logger.info("Database initialized")
+
+    # Sync RBAC permissions and roles
+    async with AsyncSessionLocal() as session:
+        await sync_rbac(session)
+
     yield
-    # Shutdown: cleanup if needed
+
+    # Shutdown: cleanup to add?
     logger.info("Shutting down...")
 
 
-app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
+app: FastAPI = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 # Register exception handlers
 register_exception_handlers(app)
