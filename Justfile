@@ -56,7 +56,7 @@ add-dev package:
 
 # Run tests
 test:
-    uv run pytest
+    uv run pytest -vv
 
 # Run tests with coverage
 test-cov:
@@ -91,9 +91,21 @@ prod:
 
 # --- Utilities ---
 
-# Open SQLite database shell
-sqlite-shell:
-    sqlite3 app.db
+# Start PostgreSQL container
+db-start:
+    docker compose up -d db
+
+# Stop PostgreSQL container
+db-stop:
+    docker compose down
+
+# Open PostgreSQL shell
+db-shell:
+    docker compose exec db psql -U saas -d saas_db
+
+# View PostgreSQL logs
+db-logs:
+    docker compose logs -f db
 
 # Clean up Python cache files
 clean:

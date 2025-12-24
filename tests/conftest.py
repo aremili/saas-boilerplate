@@ -8,6 +8,7 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.main import app
 from app.core.database import get_db
@@ -16,8 +17,13 @@ from app.common.auth.models import User, Role, Permission
 from app.common.auth.security import hash_password
 
 
-# Test database URL (in-memory SQLite)
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+from testcontainers.postgres import PostgresContainer
+
+@pytest.fixture(scope="session")
+def postgres_container() -> Generator[PostgresContainer, None, None]:
+    """Start a PostgreSQL container for the test session."""
+    with PostgresContainer("postgres:17", driver="asyncpg") as postgres:
+        yield postgres
 
 
 @pytest.fixture(scope="session")
@@ -29,17 +35,23 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_engine():
-    """Create a test database engine."""
-    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+async def db_engine(postgres_container: PostgresContainer):
+    """Create a test database engine using the container."""
+    # Use the container's connection string
+    # driver="asyncpg" in PostgresContainer handles the driver part
+    database_url = postgres_container.get_connection_url()
+    
+    engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    print("Database schema created")
 
     yield engine
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    print("Database schema dropped")
 
     await engine.dispose()
 

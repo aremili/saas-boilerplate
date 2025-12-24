@@ -7,7 +7,7 @@ A modern SaaS boilerplate built with FastAPI, HTMX, and Shoelace.
 - **Backend**: FastAPI, SQLAlchemy (async), Pydantic
 - **Frontend**: HTMX, Shoelace Web Components
 - **Templating**: Jinja2
-- **Database**: SQLite (async)
+- **Database**: PostgreSQL 17 (via Docker)
 - **Auth**: JWT-based authentication
 - **Task Runner**: [Just](https://github.com/casey/just)
 
@@ -15,7 +15,11 @@ A modern SaaS boilerplate built with FastAPI, HTMX, and Shoelace.
 
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
+- [Docker](https://www.docker.com/) (for PostgreSQL)
 - [just](https://github.com/casey/just) (optional, for task running)
+
+> [!NOTE]
+> the project uses [Testcontainers](https://testcontainers.com/) for testing. Running tests requires a local Docker daemon (e.g., Docker Desktop, OrbStack, or colima) to be running. Tests will automatically spin up an isolated PostgreSQL container.
 
 ## Getting Started
 
@@ -32,21 +36,28 @@ cp .env.example .env
 # Edit .env with your settings
 ```
 
-### 3. Run Database Migrations
+### 3. Start PostgreSQL
+
+```bash
+just db-start
+# or: docker compose up -d db
+```
+
+### 4. Run Database Migrations
 
 ```bash
 just db-upgrade
 # or: uv run alembic upgrade head
 ```
 
-### 4. Run Development Server
+### 5. Run Development Server
 
 ```bash
 just runserver
 # or: uv run uvicorn app.main:app --reload --port 8000
 ```
 
-### 5. Open in Browser
+### 6. Open in Browser
 
 Visit [http://localhost:8000](http://localhost:8000)
 
@@ -85,6 +96,9 @@ Run `just` to see all available commands:
 | `just db-upgrade` | Apply pending migrations |
 | `just db-downgrade` | Rollback last migration |
 | `just db-reset` | Reset database |
+| `just db-start` | Start PostgreSQL container |
+| `just db-stop` | Stop PostgreSQL container |
+| `just db-shell` | Open PostgreSQL shell |
 | `just fmt` | Format code with ruff |
 | `just lint` | Lint code with ruff |
 | `just clean` | Clean Python cache files |
