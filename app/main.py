@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.database import init_db, AsyncSessionLocal
@@ -54,6 +56,17 @@ app.include_router(task_router)
 app.include_router(auth_router)
 
 
+from app.core.database import get_db
+
 @app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+async def health_check(db: AsyncSession = Depends(get_db)):
+    try:
+        # Check database connectivity
+        await db.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable"
+        )
