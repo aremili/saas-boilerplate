@@ -1,29 +1,28 @@
 """
-Default roles configuration.
-TODO: add tenant admin role
+Default SaaS Staff roles configuration.
 
-Register the default roles that should exist in the system.
-These roles operate on SaaS application level.
-Admins can create additional roles via the admin API.
+These are global roles (tenant_id = NULL) for SaaS platform staff only.
+Tenant users don't use these roles - they rely on RLS for data isolation.
+
+Staff roles:
+- staff: Can manage users (read, edit) but not delete
+- support: Read-only access for support/troubleshooting
+
+Note: Platform admins use is_superuser=True on User model, no role needed.
 """
 
 from app.common.auth.registry import roles
 
-# Default roles
-
-# FIXME: no need to add permissions to admin role
+# Staff role - can read and manage users, but cannot delete
 roles.register(
-    name="admin",
-    description="Administrator with user management access",
-    permission_codenames=["users:read", "users:manage", "users:delete"],
-)
-
-roles.register(
-    name="member",
-    description="Regular member with standard access",
+    name="staff",
+    description="Staff member with user management access",
     permission_codenames=["users:read", "users:manage"],
 )
 
+# Support role - read-only access for customer support
 roles.register(
-    name="viewer", description="Read-only access", permission_codenames=["users:read"]
+    name="support",
+    description="Support staff with read-only access",
+    permission_codenames=["users:read"],
 )

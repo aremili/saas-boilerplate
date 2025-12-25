@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.database import init_db, AsyncSessionLocal
 from app.core.logging import setup_logging, get_logger
 from app.core.exceptions import register_exception_handlers
+from app.core.middleware import TenantContextMiddleware
 from app.routers.web import home
 from app.modules.task import router as task_router
 from app.common.auth import router as auth_router
@@ -46,6 +47,9 @@ app: FastAPI = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 # Register exception handlers
 register_exception_handlers(app)
+
+# Add middleware
+app.add_middleware(TenantContextMiddleware)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

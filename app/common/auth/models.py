@@ -12,6 +12,7 @@ from sqlalchemy import (
     func,
     Table,
     Column,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from app.common.models import Base
@@ -54,10 +55,13 @@ class Role(Base):
     __tablename__ = "roles"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(
-        String(50), unique=True, index=True, nullable=False
-    )
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    tenant_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("name", "tenant_id", postgresql_nulls_not_distinct=False),
+    )
 
     # Relationships
     users: Mapped[list["User"]] = relationship(
@@ -68,7 +72,7 @@ class Role(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Role(id={self.id}, name='{self.name}')>"
+        return f"<Role(id={self.id}, name='{self.name}', tenant_id={self.tenant_id})>"
 
 
 class Permission(Base):
@@ -77,10 +81,13 @@ class Permission(Base):
     __tablename__ = "permissions"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    codename: Mapped[str] = mapped_column(
-        String(100), unique=True, index=True, nullable=False
-    )
+    codename: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    tenant_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+
+    __table_args__ = (
+        UniqueConstraint("codename", "tenant_id", postgresql_nulls_not_distinct=False),
+    )
 
     # Relationships
     roles: Mapped[list["Role"]] = relationship(
@@ -98,7 +105,7 @@ class Permission(Base):
         return value
 
     def __repr__(self) -> str:
-        return f"<Permission(id={self.id}, codename='{self.codename}')>"
+        return f"<Permission(id={self.id}, codename='{self.codename}', tenant_id={self.tenant_id})>"
 
 
 class User(Base):
