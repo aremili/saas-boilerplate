@@ -12,6 +12,7 @@ from app.core.middleware import TenantContextMiddleware
 from app.routers.web import home
 from app.modules.task import router as task_router
 from app.common.auth import router as auth_router
+from app.common.admin import router as admin_router
 
 # Import permissions and roles to register them
 import app.common.auth.permissions  # noqa: F401
@@ -54,10 +55,13 @@ app.add_middleware(TenantContextMiddleware)
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Include routers
+# Common routers
 app.include_router(home.router)
-app.include_router(task_router)
 app.include_router(auth_router)
+app.include_router(admin_router)
+
+# Modules routers
+app.include_router(task_router)
 
 
 from app.core.database import get_db

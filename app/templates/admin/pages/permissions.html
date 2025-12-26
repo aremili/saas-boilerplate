@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Permissions{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <div class="container p-8">
+
+        {# Header #}
+        <header class="mb-8">
+            <h1 class="mb-2">Platform Administration</h1>
+            <p class="text-muted">
+                Manage permissions and roles for SaaS staff
+            </p>
+        </header>
+
+        {# Permissions Card #}
+        <sl-card class="mb-6" style="width: 100%;">
+            <div slot="header" class="flex items-center justify-between">
+                <h2>Registered Permissions</h2>
+                <sl-badge variant="neutral">{{ permissions|length }} total</sl-badge>
+            </div>
+
+            <div class="permission-list">
+                {% if permissions %}
+                <sl-tree>
+                    {% set ns = namespace(current_resource='') %}
+                    {% for perm in permissions|sort(attribute='codename') %}
+                        {% set resource = perm.codename.split(':')[0] %}
+                        {% set action = perm.codename.split(':')[1] %}
+                        
+                        {% if resource != ns.current_resource %}
+                            {% if ns.current_resource != '' %}
+                            </sl-tree-item>
+                            {% endif %}
+                            {% set ns.current_resource = resource %}
+                            <sl-tree-item>
+                                <sl-icon name="folder2" slot="expand-icon"></sl-icon>
+                                <sl-icon name="folder2-open" slot="collapse-icon"></sl-icon>
+                                <strong>{{ resource }}</strong>
+                        {% endif %}
+                        
+                        <sl-tree-item>
+                            <sl-icon name="key" style="color: var(--sl-color-primary-600);"></sl-icon>
+                            {{ action }}
+                            <sl-tooltip content="{{ perm.description }}">
+                                <sl-icon name="info-circle" style="color: var(--sl-color-neutral-400); margin-left: 0.5rem;"></sl-icon>
+                            </sl-tooltip>
+                        </sl-tree-item>
+                    {% endfor %}
+                    {% if permissions %}
+                    </sl-tree-item>
+                    {% endif %}
+                </sl-tree>
+                {% else %}
+                <div class="text-muted p-4">
+                    No permissions registered yet.
+                </div>
+                {% endif %}
+            </div>
+        </sl-card>
+
+        {# Roles Card #}
+        <sl-card class="mb-6" style="width: 100%;">
+            <div slot="header" class="flex items-center justify-between">
+                <h2>Default Roles</h2>
+                <sl-badge variant="neutral">{{ roles|length }} total</sl-badge>
+            </div>
+
+            <div class="role-list">
+                {% for role in roles %}
+                <div class="role-item p-4 border-b" style="border-color: var(--sl-color-neutral-200);">
+                    <div class="flex items-center gap-3 mb-2">
+                        <sl-icon name="person-badge" style="font-size: 1.25rem; color: var(--sl-color-primary-600);"></sl-icon>
+                        <strong>{{ role.name }}</strong>
+                    </div>
+                    <p class="text-muted mb-2">{{ role.description }}</p>
+                    {% if role.permissions %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for perm in role.permissions %}
+                        <sl-tag size="small" variant="primary">{{ perm }}</sl-tag>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <sl-tag size="small" variant="neutral">No permissions assigned</sl-tag>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="text-muted p-4">
+                    No roles registered yet.
+                </div>
+                {% endfor %}
+            </div>
+        </sl-card>
+
+    </div>
+</div>
+{% endblock %}

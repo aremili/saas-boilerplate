@@ -120,6 +120,7 @@ async def test_user(db_session: AsyncSession) -> User:
         hashed_password=hash_password("testpassword123"),
         is_active=True,
         is_superuser=False,
+        tenant_id=1,
     )
     db_session.add(user)
     await db_session.commit()
@@ -154,6 +155,7 @@ async def superuser(db_session: AsyncSession) -> User:
         hashed_password=hash_password("superpassword123"),
         is_active=True,
         is_superuser=True,
+        tenant_id=None,
     )
     db_session.add(user)
     await db_session.commit()

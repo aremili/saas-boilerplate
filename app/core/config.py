@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "SaaS Boilerplate"
+    VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = False  # Controlled by env var, defaults to False for safety
     
