@@ -13,6 +13,9 @@ runserver:
 
 # --- Database & Migrations ---
 
+create-superuser:
+    uv run python -m app.cli createsuperuser
+
 # Create a new migration (autogenerate from models)
 migrate message:
     uv run alembic revision --autogenerate -m "{{message}}"

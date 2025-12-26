@@ -5,7 +5,7 @@ A modern SaaS boilerplate built with FastAPI, HTMX, and Shoelace.
 ## Tech Stack
 
 - **Backend**: FastAPI, SQLAlchemy (async), Pydantic
-- **Frontend**: HTMX, Shoelace Web Components
+- **Frontend**: HTMX, [Shoelace](https://shoelace.style/) Web Components
 - **Templating**: Jinja2
 - **Database**: PostgreSQL 17 (via Docker)
 - **Auth**: JWT-based authentication
