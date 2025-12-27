@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "components/macros.html" import button %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="min-h-screen">
+    <div class="container p-8" style="max-width: 600px;">
+
+        <header class="mb-8">
+            <h1 class="mb-2">Your Profile</h1>
+            <p class="text-muted">Manage your account settings</p>
+        </header>
+
+        <sl-card>
+            <div class="space-y-4">
+                <div>
+                    <sl-tag size="small" variant="neutral">Email</sl-tag>
+                    <p class="mt-1"><strong>{{ user.email }}</strong></p>
+                </div>
+
+                <sl-divider></sl-divider>
+
+                <div>
+                    <sl-tag size="small" variant="neutral">Account Status</sl-tag>
+                    <p class="mt-1">
+                        {% if user.is_active %}
+                        <sl-badge variant="success">Active</sl-badge>
+                        {% else %}
+                        <sl-badge variant="danger">Inactive</sl-badge>
+                        {% endif %}
+
+                        {% if user.is_superuser %}
+                        <sl-badge variant="primary">Superuser</sl-badge>
+                        {% endif %}
+                    </p>
+                </div>
+
+                <sl-divider></sl-divider>
+
+                <div>
+                    <sl-tag size="small" variant="neutral">Member Since</sl-tag>
+                    <p class="mt-1">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                </div>
+            </div>
+
+            <sl-divider></sl-divider>
+
+            {# Disable hx-boost for logout - needs full page reload to clear cookies #}
+            <form action="/auth/logout" method="POST" hx-boost="false">
+                {{ button("Sign Out", variant="danger", submit=true) }}
+            </form>
+        </sl-card>
+
+    </div>
+</div>
+{% endblock %}

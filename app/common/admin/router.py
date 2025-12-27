@@ -5,7 +5,7 @@ HTMX-based admin pages for superusers to manage platform settings,
 staff permissions, and other administrative functions.
 """
 
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
 from app.core.templates import templates
@@ -19,12 +19,12 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 async def permissions_page(request: Request, user: SuperUser):
     """
     Render permissions page listing all registered permissions.
-    
+
     Only accessible by superusers.
     """
     all_permissions = permissions.all()
     all_roles = roles.all()
-    
+
     return templates.TemplateResponse(
         "admin/pages/permissions.html",
         {
@@ -32,5 +32,5 @@ async def permissions_page(request: Request, user: SuperUser):
             "user": user,
             "permissions": all_permissions,
             "roles": all_roles,
-        }
+        },
     )

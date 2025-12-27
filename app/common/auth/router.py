@@ -1,224 +1,199 @@
-"""Authentication router with endpoints for register, login, refresh, logout, and me."""
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
+"""
+Authentication router.
+"""
 
+from typing import Annotated
+from fastapi import APIRouter, Depends, Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import ValidationError
+
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.logging import get_logger
-from app.common.auth.models import User, RefreshToken
-from app.common.auth.schemas import (
-    UserCreate,
-    UserResponse,
-    Token,
-    TokenRefresh,
-    MessageResponse,
-)
+from app.core.templates import templates
+from app.common.auth.models import User
 from app.common.auth.repositories import UserRepository, RefreshTokenRepository
 from app.common.auth.security import (
     hash_password,
     verify_password,
     create_access_token,
     create_refresh_token,
-    decode_token,
 )
-from app.common.auth.dependencies import get_current_active_user
+from app.common.auth.dependencies import get_current_user_or_redirect
+from app.common.auth.schemas import UserRegister
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(
-    user_data: UserCreate,
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> User:
-    """
-    Register a new user account.
-    
-    - **email**: Valid email address (must be unique)
-    - **password**: Password (minimum 8 characters)
-    """
-    user_repo = UserRepository(db)
-    
-    # Check if email already exists
-    existing_user = await user_repo.get_by_email(user_data.email)
-    if existing_user:
-        logger.warning(f"Registration attempt with existing email: {user_data.email}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
-    # Create new user
-    hashed_pw = hash_password(user_data.password)
-    user = await user_repo.create(
-        email=user_data.email,
-        hashed_password=hashed_pw
-    )
-    
-    logger.info(f"New user registered: {user.email}")
-    return user
+# =============================================================================
+# HTML PAGES
+# =============================================================================
 
 
-@router.post("/login", response_model=Token)
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    """Render login page."""
+    return templates.TemplateResponse("auth/pages/login.html", {"request": request})
+
+
+@router.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    """Render registration page."""
+    return templates.TemplateResponse("auth/pages/register.html", {"request": request})
+
+
+# =============================================================================
+# FORM ACTIONS (POST handlers for form submissions)
+# =============================================================================
+
+
+@router.post("/login")
 async def login(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> Token:
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    username: str = Form(...),
+    password: str = Form(...),
+):
     """
-    Authenticate user and return access/refresh tokens.
-    
-    Uses OAuth2 password flow - send credentials as form data:
-    - **username**: Email address
-    - **password**: Password
+    Handle login form submission.
     """
     user_repo = UserRepository(db)
     token_repo = RefreshTokenRepository(db)
-    
-    # Find user by email
-    user = await user_repo.get_by_email(form_data.username)
-    if not user:
-        logger.warning(f"Login attempt for non-existent email: {form_data.username}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+
+    # Validate credentials
+    user = await user_repo.get_by_email(username)
+    if not user or not verify_password(password, user.hashed_password):
+        logger.warning(f"Failed login for: {username}")
+        return templates.TemplateResponse(
+            "auth/pages/login.html",
+            {"request": request, "error": "Incorrect email or password"},
+            status_code=401,
         )
-    
-    # Verify password
-    if not verify_password(form_data.password, user.hashed_password):
-        logger.warning(f"Failed login attempt for user: {user.email}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Check if user is active
+
     if not user.is_active:
-        logger.warning(f"Login attempt by inactive user: {user.email}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is inactive"
+        return templates.TemplateResponse(
+            "auth/pages/login.html",
+            {"request": request, "error": "Account is inactive"},
+            status_code=403,
         )
-    
-    # Create tokens with roles and permissions
+
     token_data = {
         "sub": str(user.id),
         "roles": [r.name for r in user.roles],
         "permissions": list(user.get_all_permissions()),
-        "tenant_id": user.tenant_id
+        "tenant_id": user.tenant_id,
     }
-    
+
     access_token = create_access_token(token_data)
     refresh_token, expires_at = create_refresh_token(token_data)
-    
-    # Store refresh token in database
-    await token_repo.create(
-        token=refresh_token,
-        user_id=user.id,
-        expires_at=expires_at
-    )
-    
+
+    # Store refresh token
+    await token_repo.create(token=refresh_token, user_id=user.id, expires_at=expires_at)
     logger.info(f"User logged in: {user.email}")
-    return Token(access_token=access_token, refresh_token=refresh_token)
 
-
-@router.post("/refresh", response_model=Token)
-async def refresh_token(
-    token_data: TokenRefresh,
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> Token:
-    """
-    Get a new access token using a valid refresh token.
-    
-    - **refresh_token**: Valid, non-expired, non-revoked refresh token
-    """
-    token_repo = RefreshTokenRepository(db)
-    user_repo = UserRepository(db)
-    
-    # Validate refresh token
-    payload = decode_token(token_data.refresh_token)
-    if payload is None or payload.get("type") != "refresh":
-        logger.warning("Invalid refresh token provided")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token"
-        )
-    
-    # Check if token exists and is valid in database
-    stored_token = await token_repo.get_valid_token(token_data.refresh_token)
-    if not stored_token:
-        logger.warning("Refresh token not found or revoked")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token expired or revoked"
-        )
-    
-    # Get user
-    user = await user_repo.get(stored_token.user_id)
-    if not user or not user.is_active:
-        logger.warning(f"Token refresh for invalid/inactive user: {stored_token.user_id}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found or inactive"
-        )
-    
-    # Revoke old refresh token (token rotation)
-    await token_repo.revoke_token(token_data.refresh_token)
-    
-    # Create new tokens with roles and permissions
-    new_token_data = {
-        "sub": str(user.id),
-        "roles": [r.name for r in user.roles],
-        "permissions": list(user.get_all_permissions()),
-        "tenant_id": user.tenant_id
+    response = RedirectResponse(url="/", status_code=303)
+    cookie_settings = {
+        "httponly": True,
+        "secure": settings.ENVIRONMENT == "production",
+        "samesite": "lax",
     }
-    
-    access_token = create_access_token(new_token_data)
-    new_refresh_token, expires_at = create_refresh_token(new_token_data)
-    
-    # Store new refresh token
-    await token_repo.create(
-        token=new_refresh_token,
-        user_id=user.id,
-        expires_at=expires_at
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        **cookie_settings,  # ty:ignore[invalid-argument-type]
     )
-    
-    logger.info(f"Tokens refreshed for user: {user.email}")
-    return Token(access_token=access_token, refresh_token=new_refresh_token)
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        **cookie_settings,  # ty:ignore[invalid-argument-type]
+    )
+
+    return response
 
 
-@router.post("/logout", response_model=MessageResponse)
+@router.post("/register")
+async def register(
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    email: str = Form(...),
+    password: str = Form(...),
+    password_confirm: str = Form(...),
+):
+    """
+    Handle registration form submission
+    """
+    user_repo = UserRepository(db)
+
+    # Validate with schema
+    try:
+        UserRegister(email=email, password=password, password_confirm=password_confirm)
+    except ValidationError as e:
+        # Extract first error message
+        error_msg = e.errors()[0]["msg"]
+        return templates.TemplateResponse(
+            "auth/pages/register.html",
+            {"request": request, "error": error_msg},
+            status_code=400,
+        )
+
+    # Check if email exists
+    existing = await user_repo.get_by_email(email)
+    if existing:
+        return templates.TemplateResponse(
+            "auth/pages/register.html",
+            {"request": request, "error": "Email already registered"},
+            status_code=400,
+        )
+
+    # Create user
+    user = await user_repo.create(
+        email=email,
+        hashed_password=hash_password(password),
+    )
+
+    logger.info(f"New user registered: {user.email}")
+
+    return RedirectResponse(url="/auth/login?registered=true", status_code=303)
+
+
+@router.post("/logout")
 async def logout(
-    token_data: TokenRefresh,
-    db: Annotated[AsyncSession, Depends(get_db)]
-) -> MessageResponse:
-    """
-    Logout by revoking the refresh token.
-    
-    - **refresh_token**: The refresh token to revoke
-    """
+    request: Request,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
     token_repo = RefreshTokenRepository(db)
-    
-    revoked = await token_repo.revoke_token(token_data.refresh_token)
-    if revoked:
-        logger.info("User logged out, refresh token revoked")
-    else:
-        logger.debug("Logout called with unknown/already-revoked token")
-    
-    return MessageResponse(message="Successfully logged out")
+
+    # Revoke refresh token if present
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token:
+        await token_repo.revoke_token(refresh_token)
+
+    logger.info("User logged out")
+
+    # Clear cookies and redirect to login
+    response = RedirectResponse(url="/auth/login", status_code=303)
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+
+    return response
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user_info(
-    current_user: Annotated[User, Depends(get_current_active_user)]
-) -> User:
-    """
-    Get the current authenticated user's information.
-    
-    Requires valid access token in Authorization header.
-    """
-    return current_user
+# =============================================================================
+# PROTECTED PAGES
+# =============================================================================
+
+
+@router.get("/me", response_class=HTMLResponse)
+async def profile_page(
+    request: Request,
+    current_user: Annotated[User, Depends(get_current_user_or_redirect)],
+):
+    """User profile page."""
+    return templates.TemplateResponse(
+        "auth/pages/profile.html", {"request": request, "user": current_user}
+    )

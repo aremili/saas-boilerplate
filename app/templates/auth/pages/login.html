@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "components/macros.html" import alert, input, button %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="container" style="max-width: 400px;">
+
+        <sl-card>
+            <div slot="header" class="text-center">
+                <h1 class="mb-2">Welcome Back</h1>
+                <p class="text-muted">Sign in to your account</p>
+            </div>
+
+            {% if request.query_params.get('registered') %}
+            <div class="mb-4">
+                {{ alert("Account created! Please sign in.", type="success", dismissable=true) }}
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="mb-4">
+                {{ alert(error, type="error", dismissable=true) }}
+            </div>
+            {% endif %}
+
+            {# Disable hx-boost for login - needs full page reload to set cookies properly #}
+            <form action="/auth/login" method="POST" hx-boost="false">
+                <div class="space-y-4">
+                    <sl-input name="username" type="email" label="Email" placeholder="you@example.com" required
+                        autocomplete="email">
+                        <sl-icon name="envelope" slot="prefix"></sl-icon>
+                    </sl-input>
+
+                    <sl-input name="password" type="password" label="Password" placeholder="Your password" required
+                        autocomplete="current-password" password-toggle>
+                        <sl-icon name="lock" slot="prefix"></sl-icon>
+                    </sl-input>
+
+                    {{ button("Sign In", variant="primary", submit=true) }}
+                </div>
+            </form>
+
+            <sl-divider></sl-divider>
+
+            <div class="text-center">
+                <p class="text-muted">
+                    Don't have an account?
+                    <a href="/auth/register" class="text-primary">Sign up</a>
+                </p>
+            </div>
+        </sl-card>
+
+    </div>
+</div>
+{% endblock %}
