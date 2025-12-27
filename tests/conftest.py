@@ -1,23 +1,46 @@
-"""
-Pytest configuration and fixtures for the SaaS boilerplate tests.
-"""
-
 import asyncio
 from typing import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
+from fastapi import APIRouter, Depends
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.main import app
+from app.main import create_app
 from app.core.database import get_db
 from app.common.models import Base
 from app.common.auth.models import User, Role, Permission
 from app.common.auth.security import hash_password
+from app.common.auth.dependencies import require_role, require_permission
 
 
 from testcontainers.postgres import PostgresContainer
+
+
+# --- Test Routes ---
+test_deps_router = APIRouter(prefix="/test-deps", tags=["test"])
+
+
+@test_deps_router.get("/editor-only")
+async def editor_only_route(user: User = Depends(require_role(["editor"]))):
+    return {"email": user.email}
+
+
+@test_deps_router.get("/admin-only")
+async def admin_only_route(user: User = Depends(require_role(["admin"]))):
+    return {"email": user.email}
+
+
+@test_deps_router.get("/content-edit")
+async def content_edit_route(user: User = Depends(require_permission("content:edit"))):
+    return {"email": user.email}
+
+
+@test_deps_router.get("/tasks-write")
+async def tasks_write_route(user: User = Depends(require_permission("tasks:write"))):
+    return {"email": user.email}
+
 
 @pytest.fixture(scope="session")
 def postgres_container() -> Generator[PostgresContainer, None, None]:
@@ -37,21 +60,17 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 @pytest_asyncio.fixture(scope="function")
 async def db_engine(postgres_container: PostgresContainer):
     """Create a test database engine using the container."""
-    # Use the container's connection string
-    # driver="asyncpg" in PostgresContainer handles the driver part
     database_url = postgres_container.get_connection_url()
-    
+
     engine = create_async_engine(database_url, echo=False, poolclass=NullPool)
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("Database schema created")
 
     yield engine
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    print("Database schema dropped")
 
     await engine.dispose()
 
@@ -70,6 +89,12 @@ async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
 @pytest_asyncio.fixture(scope="function")
 async def client(db_engine) -> AsyncGenerator[AsyncClient, None]:
     """Create an async test client with database override."""
+    # Create test app
+    test_app = create_app(init_database=False, include_static=False)
+
+    # Include test routes
+    test_app.include_router(test_deps_router)
+
     # Create session factory for this test
     async_session_maker = async_sessionmaker(
         db_engine, class_=AsyncSession, expire_on_commit=False
@@ -79,13 +104,11 @@ async def client(db_engine) -> AsyncGenerator[AsyncClient, None]:
         async with async_session_maker() as session:
             yield session
 
-    app.dependency_overrides[get_db] = override_get_db
+    test_app.dependency_overrides[get_db] = override_get_db
 
-    transport = ASGITransport(app=app)
+    transport = ASGITransport(app=test_app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
-
-    app.dependency_overrides.clear()
 
 
 # --- Test Data Fixtures ---
@@ -140,7 +163,6 @@ async def test_user_with_role(db_session: AsyncSession, test_role: Role) -> User
     user.roles.append(test_role)
     db_session.add(user)
     await db_session.commit()
-    # Refresh with roles and nested permissions
     await db_session.refresh(user, ["roles"])
     for role in user.roles:
         await db_session.refresh(role, ["permissions"])
