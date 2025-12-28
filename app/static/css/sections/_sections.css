@@ -1,0 +1,62 @@
+/*
+ * Sections - Common section styles and CTA
+ */
+
+.section {
+    padding: 6rem 0;
+}
+
+.section-container {
+    max-width: var(--app-container-max);
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 36rem;
+    margin: 0 auto 4rem;
+}
+
+.section-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin: 1rem 0;
+}
+
+.section-subtitle {
+    font-size: 1.125rem;
+    color: var(--app-text-muted);
+    margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+    background: var(--app-bg-secondary);
+}
+
+.cta-container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.cta-content p {
+    font-size: 1.125rem;
+    color: var(--app-text-muted);
+    margin: 0 0 2rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .section {
+        padding: 4rem 0;
+    }
+}

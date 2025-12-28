@@ -1,0 +1,28 @@
+/*
+ * Task Module Styles
+ */
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    transition: background-color var(--transition-fast);
+}
+
+.task-item:hover {
+    background-color: var(--app-bg-hover);
+}
+
+.task-item .delete-btn {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.task-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.task-list>*+* {
+    border-top: 1px solid var(--app-border);
+}

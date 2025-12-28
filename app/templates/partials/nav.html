@@ -14,8 +14,12 @@
             {% endfor %}
         </nav>
 
-        {# CTA Buttons #}
+        {# Actions: Theme Toggle + CTA Buttons #}
         <div class="navbar-actions">
+            {# Theme Toggle #}
+            <sl-icon-button class="theme-toggle" name="moon" label="Toggle theme"
+                onclick="toggleTheme()"></sl-icon-button>
+
             <sl-button variant="text" href="{{ content.navigation.header_cta.login.url }}">
                 {{ content.navigation.header_cta.login.text }}
             </sl-button>

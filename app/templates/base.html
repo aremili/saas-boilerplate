@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SaaS Boilerplate{% endblock %}</title>
+    <title>{% block title %}{{ content.site.name }}{% endblock %}</title>
+    <meta name="description" content="{{ content.site.meta.description }}">
 
-    <!-- Shoelace CSS -->
+    <!-- Shoelace CSS (both themes) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.19.1/cdn/themes/light.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.19.1/cdn/themes/dark.css" />
 
     <!-- Custom App Styles -->
     <link rel="stylesheet" href="/static/css/main.css">
@@ -18,10 +20,47 @@
 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+        // Apply saved theme on load (before render to prevent flash)
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.className = 'theme-' + savedTheme;
+            // Also set Shoelace theme
+            document.documentElement.classList.add('sl-theme-' + savedTheme);
+        })();
+    </script>
 </head>
 
 <body hx-boost="true">
     {% block content %}{% endblock %}
+
+    <!-- Theme Toggle Function -->
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('theme-dark');
+            const newTheme = isDark ? 'light' : 'dark';
+
+            // Update the theme
+            html.classList.remove('theme-dark', 'theme-light');
+            html.classList.add('theme-' + newTheme);
+
+            // Update Shoelace theme
+            html.classList.remove('sl-theme-dark', 'sl-theme-light');
+            html.classList.add('sl-theme-' + newTheme);
+
+            // Save preference
+            localStorage.setItem('theme', newTheme);
+
+            // Update icon
+            const icon = document.querySelector('.theme-toggle sl-icon');
+            if (icon) {
+                icon.name = newTheme === 'dark' ? 'moon' : 'sun';
+            }
+        }
+    </script>
 </body>
 
 </html>

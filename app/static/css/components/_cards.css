@@ -1,0 +1,123 @@
+/*
+ * Cards - Feature cards, pricing cards, generic cards
+ */
+
+/* Feature Cards */
+.feature-card {
+    background: var(--app-bg-card);
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    transition: transform var(--transition-slow), border-color var(--transition-slow);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--app-border-hover);
+}
+
+.feature-icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    color: white;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+    color: var(--app-text-muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Pricing Cards */
+.pricing-card {
+    position: relative;
+    background: var(--app-bg-card);
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.pricing-card.featured {
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: var(--shadow-glow);
+    transform: scale(1.02);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 1rem;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.pricing-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.pricing-description {
+    color: var(--app-text-muted);
+    margin: 0 0 1.5rem;
+}
+
+.pricing-price {
+    margin-bottom: 2rem;
+}
+
+.pricing-price .price {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.pricing-price .period {
+    color: var(--app-text-muted);
+    font-size: 1rem;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    flex: 1;
+}
+
+.pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    color: var(--app-text-muted);
+    font-size: 0.9375rem;
+}
+
+.pricing-features sl-icon {
+    color: var(--sl-color-success-500);
+    flex-shrink: 0;
+}
+
+.pricing-cta {
+    width: 100%;
+}
