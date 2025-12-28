@@ -58,11 +58,11 @@ add-dev package:
 
 # Run tests
 test:
-    uv run pytest -vv
+    uv run pytest -n auto -vv
 
 # Run tests with coverage
 test-cov:
-    uv run pytest --cov=app --cov-report=term-missing
+    uv run pytest -n auto --cov=app --cov-report=term-missing
 
 # --- Code Quality ---
 
