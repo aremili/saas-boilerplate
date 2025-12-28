@@ -1,16 +1,24 @@
 {% extends "base.html" %}
 {% from "components/macros.html" import alert, button %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Create Account - {{ settings.PROJECT_NAME }}{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center">
-    <div class="container" style="max-width: 400px;">
+<div class="auth-page">
+    <div class="auth-bg"></div>
 
-        <sl-card>
-            <div slot="header" class="text-center">
-                <h1 class="mb-2">Create Account</h1>
-                <p class="text-muted">Sign up to get started</p>
+    <div class="auth-container">
+        {# Logo / Brand #}
+        <a href="/" class="auth-logo">
+            <sl-icon name="rocket-takeoff"></sl-icon>
+            <span>{{ settings.PROJECT_NAME }}</span>
+        </a>
+
+        {# Auth Card #}
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Start your free trial today</p>
             </div>
 
             {% if error %}
@@ -20,7 +28,7 @@
             {% endif %}
 
             <form action="/auth/register" method="POST" hx-boost="false">
-                <div class="space-y-4">
+                <div class="auth-form">
                     <sl-input name="email" type="email" label="Email" placeholder="you@example.com" required
                         autocomplete="email">
                         <sl-icon name="envelope" slot="prefix"></sl-icon>
@@ -36,20 +44,41 @@
                         <sl-icon name="lock" slot="prefix"></sl-icon>
                     </sl-input>
 
-                    {{ button("Create Account", variant="primary", submit=true) }}
+                    <sl-button variant="primary" type="submit" class="auth-submit">
+                        Create Account
+                        <sl-icon slot="suffix" name="arrow-right"></sl-icon>
+                    </sl-button>
                 </div>
             </form>
 
-            <sl-divider></sl-divider>
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
 
-            <div class="text-center">
-                <p class="text-muted">
+            <div class="auth-social">
+                <sl-button variant="neutral" outline>
+                    <sl-icon slot="prefix" name="google"></sl-icon>
+                    Google
+                </sl-button>
+                <sl-button variant="neutral" outline>
+                    <sl-icon slot="prefix" name="github"></sl-icon>
+                    GitHub
+                </sl-button>
+            </div>
+
+            <div class="auth-footer">
+                <p>
                     Already have an account?
-                    <a href="/auth/login" class="text-primary">Sign in</a>
+                    <a href="/auth/login" class="auth-link">Sign in</a>
                 </p>
             </div>
-        </sl-card>
+        </div>
 
+        <p class="auth-terms">
+            By creating an account, you agree to our
+            <a href="/terms">Terms of Service</a> and
+            <a href="/privacy">Privacy Policy</a>.
+        </p>
     </div>
 </div>
 {% endblock %}

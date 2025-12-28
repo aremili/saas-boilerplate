@@ -1,0 +1,33 @@
+{# Navigation Bar Partial #}
+<header class="navbar">
+    <div class="navbar-container">
+        {# Logo #}
+        <a href="/" class="navbar-logo">
+            <sl-icon name="rocket-takeoff" style="font-size: 1.5rem;"></sl-icon>
+            <span>{{ settings.PROJECT_NAME }}</span>
+        </a>
+
+        {# Desktop Menu #}
+        <nav class="navbar-menu">
+            <a href="#features" class="navbar-link">Features</a>
+            <a href="#pricing" class="navbar-link">Pricing</a>
+            <a href="/docs" class="navbar-link">Docs</a>
+            <a href="/about" class="navbar-link">About</a>
+        </nav>
+
+        {# CTA Buttons #}
+        <div class="navbar-actions">
+            <sl-button variant="text" href="/auth/login">Login</sl-button>
+            <sl-button variant="primary" href="/auth/register">
+                Get Started
+                <sl-icon slot="suffix" name="arrow-right"></sl-icon>
+            </sl-button>
+        </div>
+
+        {# Mobile Menu Toggle #}
+        <sl-button class="navbar-mobile-toggle" variant="text"
+            onclick="document.querySelector('.navbar-menu').classList.toggle('open')">
+            <sl-icon name="list" style="font-size: 1.5rem;"></sl-icon>
+        </sl-button>
+    </div>
+</header>

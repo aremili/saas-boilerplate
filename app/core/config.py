@@ -1,4 +1,4 @@
-from typing import Any
+from datetime import datetime
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
     DEBUG: bool = False  # Controlled by env var, defaults to False for safety
-    
+
     # PostgreSQL connection pool settings
     DB_POOL_SIZE: int = 5
     DB_MAX_OVERFLOW: int = 10
@@ -36,10 +36,10 @@ class Settings(BaseSettings):
     LOG_FORMAT: str = "console"  # "json" for production, "console" for development
 
     model_config = SettingsConfigDict(
-        env_file=".env", 
-        env_file_encoding="utf-8", 
-        extra="ignore"
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
+    # FIXME: use jinja context processor
+    current_year: int = datetime.now().year
 
 
 settings = Settings()
