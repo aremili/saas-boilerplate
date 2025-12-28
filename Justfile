@@ -1,4 +1,3 @@
-# Justfile for SaaS Boilerplate
 # See https://github.com/casey/just for installation
 
 # Default command: show available recipes
@@ -6,6 +5,10 @@ default:
     @just --list
 
 # --- Development ---
+
+start:
+    just db-start
+    just runserver
 
 # Run the development server with auto-reload
 runserver:
@@ -27,10 +30,6 @@ db-upgrade:
 # Rollback the last migration
 db-downgrade:
     uv run alembic downgrade -1
-
-# Show current migration status
-db-status:
-    uv run alembic current
 
 # Show migration history
 db-history:
@@ -68,7 +67,7 @@ test-cov:
 # --- Code Quality ---
 
 # Format code with ruff
-fmt:
+format:
     uv run ruff format .
 
 # Lint code with ruff
@@ -81,7 +80,7 @@ lint-fix:
 
 # Type check with mypy
 typecheck:
-    uv run mypy app
+    uv run ty check
 
 # Run all checks (lint + typecheck)
 check: lint typecheck
@@ -89,7 +88,7 @@ check: lint typecheck
 # --- Production ---
 
 # Run production server (no reload)
-prod:
+run-prod:
     uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 # --- Utilities ---
@@ -109,9 +108,3 @@ db-shell:
 # View PostgreSQL logs
 db-logs:
     docker compose logs -f db
-
-# Clean up Python cache files
-clean:
-    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-    find . -type f -name "*.pyc" -delete 2>/dev/null || true
-    find . -type f -name "*.pyo" -delete 2>/dev/null || true
