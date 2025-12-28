@@ -1,0 +1,33 @@
+# =============================================================================
+# Site Configuration
+# Global branding, metadata, and site-wide settings
+# =============================================================================
+
+# Branding
+name: "Hello SaaS"
+tagline: "Build faster. Launch sooner. Scale effortlessly."
+logo_icon: "rocket-takeoff"  # Shoelace icon name (https://shoelace.style/components/icon)
+
+# SEO & Meta
+meta:
+  title_suffix: " | SaaS Boilerplate"
+  description: "The modern boilerplate for building production-ready SaaS applications."
+  keywords: "saas, boilerplate, fastapi, python, htmx"
+
+# Social Links (leave empty to hide)
+social:
+  twitter: "#"
+  github: "#"
+  linkedin: "#"
+  discord: "#"
+
+# Legal Pages
+legal:
+  terms_url: "/terms"
+  privacy_url: "/privacy"
+  cookies_url: "/cookies"
+
+# Contact
+contact:
+  email: "hello@example.com"
+  support_email: "support@example.com"

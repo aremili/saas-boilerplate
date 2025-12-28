@@ -1,17 +1,19 @@
 """Jinja2 template configuration with support for module templates."""
+
 from pathlib import Path
 from fastapi.templating import Jinja2Templates
 from jinja2 import ChoiceLoader, FileSystemLoader
 from app.core.config import settings
+from app.core.content import content
 
 
 def discover_template_directories() -> list[str]:
     """Discover all template directories from shared templates and modules."""
-    base_path = Path(__file__).parent.parent
-    
+    base_path: Path = Path(__file__).parent.parent
+
     # Start with shared templates directory
     template_dirs = [str(base_path / "templates")]
-    
+
     # Discover module template directories
     modules_path = base_path / "modules"
     if modules_path.exists():
@@ -20,7 +22,7 @@ def discover_template_directories() -> list[str]:
                 templates_dir = module_dir / "templates"
                 if templates_dir.exists():
                     template_dirs.append(str(templates_dir))
-    
+
     return template_dirs
 
 
@@ -33,3 +35,4 @@ templates.env.loader = loader
 
 # Global template variables
 templates.env.globals["settings"] = settings
+templates.env.globals["content"] = content

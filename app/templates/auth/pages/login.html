@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "components/macros.html" import alert, input, button %}
 
-{% block title %}Login - {{ settings.PROJECT_NAME }}{% endblock %}
+{% block title %}Login - {{ content.site.name }}{% endblock %}
 
 {% block content %}
 <div class="auth-page">
@@ -10,8 +10,8 @@
     <div class="auth-container">
         {# Logo / Brand #}
         <a href="/" class="auth-logo">
-            <sl-icon name="rocket-takeoff"></sl-icon>
-            <span>{{ settings.PROJECT_NAME }}</span>
+            <sl-icon name="{{ content.site.logo_icon }}"></sl-icon>
+            <span>{{ content.site.name }}</span>
         </a>
 
         {# Auth Card #}

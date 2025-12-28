@@ -3,23 +3,24 @@
     <div class="navbar-container">
         {# Logo #}
         <a href="/" class="navbar-logo">
-            <sl-icon name="rocket-takeoff" style="font-size: 1.5rem;"></sl-icon>
-            <span>{{ settings.PROJECT_NAME }}</span>
+            <sl-icon name="{{ content.site.logo_icon }}" style="font-size: 1.5rem;"></sl-icon>
+            <span>{{ content.site.name }}</span>
         </a>
 
         {# Desktop Menu #}
         <nav class="navbar-menu">
-            <a href="#features" class="navbar-link">Features</a>
-            <a href="#pricing" class="navbar-link">Pricing</a>
-            <a href="/docs" class="navbar-link">Docs</a>
-            <a href="/about" class="navbar-link">About</a>
+            {% for link in content.navigation.main_menu %}
+            <a href="{{ link.url }}" class="navbar-link">{{ link.text }}</a>
+            {% endfor %}
         </nav>
 
         {# CTA Buttons #}
         <div class="navbar-actions">
-            <sl-button variant="text" href="/auth/login">Login</sl-button>
-            <sl-button variant="primary" href="/auth/register">
-                Get Started
+            <sl-button variant="text" href="{{ content.navigation.header_cta.login.url }}">
+                {{ content.navigation.header_cta.login.text }}
+            </sl-button>
+            <sl-button variant="primary" href="{{ content.navigation.header_cta.signup.url }}">
+                {{ content.navigation.header_cta.signup.text }}
                 <sl-icon slot="suffix" name="arrow-right"></sl-icon>
             </sl-button>
         </div>

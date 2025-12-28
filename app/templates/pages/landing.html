@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ settings.PROJECT_NAME }} - Build Faster, Launch Sooner{% endblock %}
+{% block title %}{{ content.site.name }} - Build Faster, Launch Sooner{% endblock %}
 
 {% block content %}
 {# Navigation #}
@@ -11,31 +11,44 @@
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-content">
+            {% if content.landing.hero.badge %}
             <sl-badge variant="primary" pill class="hero-badge">
-                🚀 Now in Public Beta
+                {{ content.landing.hero.badge }}
             </sl-badge>
+            {% endif %}
             <h1 class="hero-title">
-                Build Your SaaS
-                <span class="gradient-text">10x Faster</span>
+                {{ content.landing.hero.title }}
+                {% if content.landing.hero.highlight %}
+                <span class="gradient-text">{{ content.landing.hero.highlight }}</span>
+                {% endif %}
             </h1>
             <p class="hero-subtitle">
-                The modern boilerplate for building production-ready SaaS applications.
-                Authentication, billing, multi-tenancy — all pre-configured.
+                {{ content.landing.hero.subtitle }}
             </p>
             <div class="hero-actions">
-                <sl-button variant="primary" size="large" href="/auth/register">
-                    Start Building Free
-                    <sl-icon slot="suffix" name="arrow-right"></sl-icon>
+                {% if content.landing.hero.cta_primary %}
+                <sl-button variant="primary" size="large" href="{{ content.landing.hero.cta_primary.url }}">
+                    {{ content.landing.hero.cta_primary.text }}
+                    {% if content.landing.hero.cta_primary.icon %}
+                    <sl-icon slot="suffix" name="{{ content.landing.hero.cta_primary.icon }}"></sl-icon>
+                    {% endif %}
                 </sl-button>
-                <sl-button variant="neutral" size="large" href="#demo">
-                    <sl-icon slot="prefix" name="play-circle"></sl-icon>
-                    Watch Demo
+                {% endif %}
+                {% if content.landing.hero.cta_secondary %}
+                <sl-button variant="neutral" size="large" href="{{ content.landing.hero.cta_secondary.url }}">
+                    {% if content.landing.hero.cta_secondary.icon %}
+                    <sl-icon slot="prefix" name="{{ content.landing.hero.cta_secondary.icon }}"></sl-icon>
+                    {% endif %}
+                    {{ content.landing.hero.cta_secondary.text }}
                 </sl-button>
+                {% endif %}
             </div>
+            {% if content.landing.hero.note %}
             <p class="hero-note">
                 <sl-icon name="check-circle" style="color: var(--sl-color-success-600);"></sl-icon>
-                Free tier available • No credit card required
+                {{ content.landing.hero.note }}
             </p>
+            {% endif %}
         </div>
     </section>
 
@@ -43,67 +56,23 @@
     <section id="features" class="section features-section">
         <div class="section-container">
             <div class="section-header">
-                <sl-badge variant="neutral" pill>Features</sl-badge>
-                <h2 class="section-title">Everything you need to launch</h2>
+                <sl-badge variant="neutral" pill>{{ content.landing.features.section_badge }}</sl-badge>
+                <h2 class="section-title">{{ content.landing.features.section_title }}</h2>
                 <p class="section-subtitle">
-                    Stop reinventing the wheel. Focus on what makes your product unique.
+                    {{ content.landing.features.section_subtitle }}
                 </p>
             </div>
 
             <div class="features-grid">
-                {# Feature 1 #}
+                {% for feature in content.landing.features.items %}
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <sl-icon name="shield-lock"></sl-icon>
+                        <sl-icon name="{{ feature.icon }}"></sl-icon>
                     </div>
-                    <h3>Authentication</h3>
-                    <p>Secure login, registration, password reset, and session management out of the box.</p>
+                    <h3>{{ feature.title }}</h3>
+                    <p>{{ feature.description }}</p>
                 </div>
-
-                {# Feature 2 #}
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <sl-icon name="people"></sl-icon>
-                    </div>
-                    <h3>Multi-tenancy</h3>
-                    <p>Built-in tenant isolation with Row-Level Security. Each customer's data is protected.</p>
-                </div>
-
-                {# Feature 3 #}
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <sl-icon name="credit-card"></sl-icon>
-                    </div>
-                    <h3>Billing & Subscriptions</h3>
-                    <p>Stripe integration for subscriptions, usage-based billing, and invoicing.</p>
-                </div>
-
-                {# Feature 4 #}
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <sl-icon name="sliders"></sl-icon>
-                    </div>
-                    <h3>Admin Dashboard</h3>
-                    <p>Manage users, roles, permissions, and system settings with a beautiful UI.</p>
-                </div>
-
-                {# Feature 5 #}
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <sl-icon name="lightning-charge"></sl-icon>
-                    </div>
-                    <h3>API Ready</h3>
-                    <p>RESTful API with automatic OpenAPI docs. Ready for mobile apps and integrations.</p>
-                </div>
-
-                {# Feature 6 #}
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <sl-icon name="gear"></sl-icon>
-                    </div>
-                    <h3>Developer Experience</h3>
-                    <p>Type-safe Python, async by default, hot reload, and comprehensive testing setup.</p>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -112,80 +81,40 @@
     <section id="pricing" class="section pricing-section">
         <div class="section-container">
             <div class="section-header">
-                <sl-badge variant="neutral" pill>Pricing</sl-badge>
-                <h2 class="section-title">Simple, transparent pricing</h2>
+                <sl-badge variant="neutral" pill>{{ content.pricing.section_badge }}</sl-badge>
+                <h2 class="section-title">{{ content.pricing.section_title }}</h2>
                 <p class="section-subtitle">
-                    Start free and scale as you grow. No hidden fees.
+                    {{ content.pricing.section_subtitle }}
                 </p>
             </div>
 
             <div class="pricing-grid">
-                {# Free Tier #}
-                <div class="pricing-card">
+                {% for tier in content.pricing.tiers %}
+                <div class="pricing-card{% if tier.featured %} featured{% endif %}">
+                    {% if tier.badge %}
+                    <div class="pricing-badge">{{ tier.badge }}</div>
+                    {% endif %}
                     <div class="pricing-header">
-                        <h3>Starter</h3>
-                        <p class="pricing-description">Perfect for side projects</p>
+                        <h3>{{ tier.name }}</h3>
+                        <p class="pricing-description">{{ tier.description }}</p>
                     </div>
                     <div class="pricing-price">
-                        <span class="price">$0</span>
-                        <span class="period">/month</span>
+                        <span class="price">{{ tier.price }}</span>
+                        {% if tier.period %}
+                        <span class="period">{{ tier.period }}</span>
+                        {% endif %}
                     </div>
                     <ul class="pricing-features">
-                        <li><sl-icon name="check"></sl-icon> Up to 100 users</li>
-                        <li><sl-icon name="check"></sl-icon> 1 GB storage</li>
-                        <li><sl-icon name="check"></sl-icon> Community support</li>
-                        <li><sl-icon name="check"></sl-icon> Basic analytics</li>
+                        {% for feature in tier.features %}
+                        <li><sl-icon name="check"></sl-icon> {{ feature }}</li>
+                        {% endfor %}
                     </ul>
-                    <sl-button variant="neutral" outline class="pricing-cta">
-                        Get Started
+                    <sl-button variant="{{ tier.cta_variant }}" {% if tier.cta_variant=='neutral' %}outline{% endif %}
+                        class="pricing-cta">
+                        {{ tier.cta_text }}
                     </sl-button>
                 </div>
-
-                {# Pro Tier #}
-                <div class="pricing-card featured">
-                    <div class="pricing-badge">Most Popular</div>
-                    <div class="pricing-header">
-                        <h3>Pro</h3>
-                        <p class="pricing-description">For growing businesses</p>
-                    </div>
-                    <div class="pricing-price">
-                        <span class="price">$49</span>
-                        <span class="period">/month</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><sl-icon name="check"></sl-icon> Unlimited users</li>
-                        <li><sl-icon name="check"></sl-icon> 100 GB storage</li>
-                        <li><sl-icon name="check"></sl-icon> Priority support</li>
-                        <li><sl-icon name="check"></sl-icon> Advanced analytics</li>
-                        <li><sl-icon name="check"></sl-icon> Custom integrations</li>
-                        <li><sl-icon name="check"></sl-icon> API access</li>
-                    </ul>
-                    <sl-button variant="primary" class="pricing-cta">
-                        Start Free Trial
-                    </sl-button>
-                </div>
-
-                {# Enterprise Tier #}
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <h3>Enterprise</h3>
-                        <p class="pricing-description">For large organizations</p>
-                    </div>
-                    <div class="pricing-price">
-                        <span class="price">Custom</span>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><sl-icon name="check"></sl-icon> Everything in Pro</li>
-                        <li><sl-icon name="check"></sl-icon> Unlimited storage</li>
-                        <li><sl-icon name="check"></sl-icon> Dedicated support</li>
-                        <li><sl-icon name="check"></sl-icon> SLA guarantee</li>
-                        <li><sl-icon name="check"></sl-icon> Custom contracts</li>
-                        <li><sl-icon name="check"></sl-icon> On-premise option</li>
-                    </ul>
-                    <sl-button variant="neutral" outline class="pricing-cta">
-                        Contact Sales
-                    </sl-button>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -194,11 +123,11 @@
     <section class="section cta-section">
         <div class="cta-container">
             <div class="cta-content">
-                <h2>Ready to build your next great product?</h2>
-                <p>Join thousands of developers shipping faster with our boilerplate.</p>
+                <h2>{{ content.landing.cta.title }}</h2>
+                <p>{{ content.landing.cta.subtitle }}</p>
                 <div class="cta-actions">
-                    <sl-button variant="primary" size="large" href="/auth/register">
-                        Start Building Today
+                    <sl-button variant="primary" size="large" href="{{ content.landing.cta.button_url }}">
+                        {{ content.landing.cta.button_text }}
                         <sl-icon slot="suffix" name="arrow-right"></sl-icon>
                     </sl-button>
                 </div>

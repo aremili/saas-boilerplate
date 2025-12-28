@@ -1,0 +1,66 @@
+# =============================================================================
+# Landing Page Content
+# Hero section, features, and call-to-action content
+# =============================================================================
+
+# Hero Section
+hero:
+  badge: "🚀 Now in Public Beta"
+  title: "Build Your SaaS"
+  highlight: "10x Faster"  # Text with gradient effect
+  subtitle: >
+    The modern boilerplate for building production-ready SaaS applications.
+    Authentication, billing, multi-tenancy — all pre-configured.
+  
+  # Primary CTA button
+  cta_primary:
+    text: "Start Building Free"
+    url: "/auth/register"
+    icon: "arrow-right"  # Shoelace icon (suffix)
+  
+  # Secondary CTA button
+  cta_secondary:
+    text: "Watch Demo"
+    url: "#demo"
+    icon: "play-circle"  # Shoelace icon (prefix)
+  
+  # Note below CTAs
+  note: "Free tier available • No credit card required"
+
+# Features Section
+features:
+  section_badge: "Features"
+  section_title: "Everything you need to launch"
+  section_subtitle: "Stop reinventing the wheel. Focus on what makes your product unique."
+  
+  items:
+    - icon: "shield-lock"
+      title: "Authentication"
+      description: "Secure login, registration, password reset, and session management out of the box."
+    
+    - icon: "people"
+      title: "Multi-tenancy"
+      description: "Built-in tenant isolation with Row-Level Security. Each customer's data is protected."
+    
+    - icon: "credit-card"
+      title: "Billing & Subscriptions"
+      description: "Stripe integration for subscriptions, usage-based billing, and invoicing."
+    
+    - icon: "sliders"
+      title: "Admin Dashboard"
+      description: "Manage users, roles, permissions, and system settings with a beautiful UI."
+    
+    - icon: "lightning-charge"
+      title: "API Ready"
+      description: "RESTful API with automatic OpenAPI docs. Ready for mobile apps and integrations."
+    
+    - icon: "gear"
+      title: "Developer Experience"
+      description: "Type-safe Python, async by default, hot reload, and comprehensive testing setup."
+
+# Final CTA Section
+cta:
+  title: "Ready to build your next great product?"
+  subtitle: "Join thousands of developers shipping faster with our boilerplate."
+  button_text: "Start Building Today"
+  button_url: "/auth/register"

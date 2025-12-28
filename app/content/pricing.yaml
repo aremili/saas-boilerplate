@@ -1,0 +1,55 @@
+# =============================================================================
+# Pricing Configuration
+# Pricing tiers, features, and billing information
+# =============================================================================
+
+# Section Header
+section_badge: "Pricing"
+section_title: "Simple, transparent pricing"
+section_subtitle: "Start free and scale as you grow. No hidden fees."
+
+# Pricing Tiers
+tiers:
+  - name: "Starter"
+    description: "Perfect for side projects"
+    price: "$0"
+    period: "/month"
+    featured: false
+    cta_text: "Get Started"
+    cta_variant: "neutral"  # Shoelace button variant
+    features:
+      - "Up to 100 users"
+      - "1 GB storage"
+      - "Community support"
+      - "Basic analytics"
+  
+  - name: "Pro"
+    description: "For growing businesses"
+    price: "$49"
+    period: "/month"
+    featured: true  # Highlighted tier
+    badge: "Most Popular"
+    cta_text: "Start Free Trial"
+    cta_variant: "primary"
+    features:
+      - "Unlimited users"
+      - "100 GB storage"
+      - "Priority support"
+      - "Advanced analytics"
+      - "Custom integrations"
+      - "API access"
+  
+  - name: "Enterprise"
+    description: "For large organizations"
+    price: "Custom"
+    period: ""
+    featured: false
+    cta_text: "Contact Sales"
+    cta_variant: "neutral"
+    features:
+      - "Everything in Pro"
+      - "Unlimited storage"
+      - "Dedicated support"
+      - "SLA guarantee"
+      - "Custom contracts"
+      - "On-premise option"
